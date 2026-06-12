@@ -18,4 +18,4 @@ My learning journal for the [Leapfrog #60DaysOfLearning2026](https://x.com/hasht
 | 12 | DSP filters + sine waves from scratch in Python | [hallah/fft.py](./hallah/fft.py) |
 
 ## Posts
-Daily updates on X: [@sanjibdahal](https://x.com/sanjibdahal) - [#60DaysOfLearning2026](https://x.com/hashtag/60DaysOfLearning2026)
+Daily updates on X: [@san_jib_dahal](https://x.com/san_jib_dahal) - [#60DaysOfLearning2026](https://x.com/hashtag/60DaysOfLearning2026)
