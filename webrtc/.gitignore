@@ -1,0 +1,8 @@
+node_modules/
+certs/
+.env
+*.pem
+.DS_Store
+npm-debug.log*
+setup-certs.sh
+.git

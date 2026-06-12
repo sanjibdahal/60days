@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Hello, Hallah</h1>
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
+<script>
+let hallah, chooseNoise, setVolume, playBtn, pauseBtn;
+let started = false;
+
+function setup() {
+    // createCanvas(100, 40);
+    hallah = new p5.Noise();
+
+    hallah.amp(0);
+
+ 
+    chooseNoise = createSelect();
+    chooseNoise.option('white');
+    chooseNoise.option('pink');
+    chooseNoise.option('brown');
+
+    setVolume = createSlider(0, 1, 0, 0);
+
+    chooseNoise.changed((e)=>hallah.setType(e.target.value));
+    setVolume.input(()=>hallah.amp(setVolume.value(), 0.01));
+
+    playBtn = createButton('play').mousePressed(()=>(hallah.start()));
+    pauseBtn = createButton('pause').mousePressed(()=>(hallah.stop()));
+
+    chooseNoise.position(20,100);
+    setVolume.position(100,100);
+    playBtn.position(20, 140);
+    pauseBtn.position(70, 140);
+
+}
+
+function draw() {
+  // background(220);
+}
+
+</script>
+</html>
+

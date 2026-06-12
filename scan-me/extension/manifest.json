@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Select-to-QR Reader",
+  "version": "0.1",
+  "description": "Select a rectangle on the page and decode QR codes from the selection.",
+  "permissions": ["activeTab", "scripting", "tabs", "storage"],
+  "host_permissions": ["<all_urls>"],
+  "background": {"scripts": ["background.js"] , "service_worker": "background.js", "type": "module"},
+  "action": {
+    "default_title": "Select QR",
+    "default_icon": {
+      "48": "icons/icon48.svg"
+    }
+  },
+  "icons": {
+    "48": "icons/icon48.svg",
+    "128": "icons/icon128.svg"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["vendor/jsQR.js", "selector.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

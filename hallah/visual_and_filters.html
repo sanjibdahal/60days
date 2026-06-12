@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<body style="margin:0; background:#111; color:#fff; font-family:monospace;">
+
+<div style="padding:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+  <div>
+    <label>Wave: </label>
+    <select id="waveType" onchange="changeWave()">
+      <option value="sine">Sine</option>
+      <option value="sawtooth" selected>Sawtooth</option>
+      <option value="square">Square</option>
+      <option value="triangle">Triangle</option>
+    </select>
+  </div>
+  <div>
+    <label>View: </label>
+    <select id="viewType">
+      <option value="spectrum">Spectrum (FFT)</option>
+      <option value="waveform">Waveform</option>
+    </select>
+  </div>
+  <div>
+    <label>Freq: <span id="freqVal">660</span> Hz</label>
+    <input type="range" id="freq" min="100" max="2000" value="660" oninput="changeFreq()">
+  </div>
+  <div>
+    <label>Amp: <span id="ampVal">0.2</span></label>
+    <input type="range" id="amp" min="0" max="1" step="0.01" value="0.2" oninput="changeAmp()">
+  </div>
+  <div>
+    <label>Smoothing: <span id="smoothVal">0.8</span></label>
+    <input type="range" id="smooth" min="0" max="0.99" step="0.01" value="0.8" oninput="changeSmooth()">
+  </div>
+  <div>
+    <label>Source: </label>
+    <select id="source" onchange="changeSource()">
+      <option value="osc">Oscillator</option>
+      <option value="mic">Microphone</option>
+    </select>
+  </div>
+  <div>
+  <label>Cutoff: <span id="cutoffVal">2000</span> Hz</label>
+  <input type="range" id="cutoff" min="0" max="10000" value="2000" oninput="changeCutoff()">
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
+<script>
+let osc, mic, fft;
+let started = false;
+let currentSource = 'osc';
+let filter;
+
+function setup() {
+  let cnv = createCanvas(800, 400);
+  cnv.parent(document.body);
+  colorMode(HSB);
+}
+
+function draw() {
+  background(0, 0, 10);
+
+  if (!started) {
+    fill(0, 0, 255);
+    textAlign(CENTER, CENTER);
+    textSize(18);
+    text('click to start', width / 2, height / 2);
+    return;
+  }
+
+  let view = document.getElementById('viewType').value;
+
+  if (view === 'spectrum') {
+    drawSpectrum();
+  } else {
+    drawWaveform();
+  }
+}
+
+function drawSpectrum() {
+  let spectrum = fft.analyze();
+  noStroke();
+  for (let i = 0; i < spectrum.length; i++) {
+    let x = map(i, 0, spectrum.length, 0, width);
+    let h = map(spectrum[i], 0, 255, 0, height);
+    let hue = map(i, 0, spectrum.length, 200, 360);
+    fill(hue, 255, 255);
+    rect(x, height - h, width / spectrum.length, h);
+  }
+}
+
+function drawWaveform() {
+  let wave = fft.waveform();
+  noFill();
+  stroke(120, 255, 255);
+  strokeWeight(2);
+  beginShape();
+  for (let i = 0; i < wave.length; i++) {
+    let x = map(i, 0, wave.length, 0, width);
+    let y = map(wave[i], -1, 1, height, 0);
+    vertex(x, y);
+  }
+  endShape();
+}
+
+function mousePressed() {
+  if (!started) {
+    userStartAudio();
+    osc = new p5.Oscillator();
+    filter = new p5.LowPass();
+    filter.freq(200);
+    filter.res(10);
+    osc.setType('sawtooth');
+    osc.freq(660);
+    osc.amp(0.2);
+    osc.start();
+
+    osc.disconnect();
+    osc.connect(filter);
+
+    mic = new p5.AudioIn();
+
+    fft = new p5.FFT(0.8, 512);
+    fft.setInput(filter);
+    started = true;
+  }
+}
+
+function changeWave() {
+  if (osc) osc.setType(document.getElementById('waveType').value);
+}
+
+function changeFreq() {
+  let v = document.getElementById('freq').value;
+  document.getElementById('freqVal').textContent = v;
+  if (osc) osc.freq(v);
+}
+
+function changeAmp() {
+  let v = document.getElementById('amp').value;
+  document.getElementById('ampVal').textContent = v;
+  if (osc) osc.amp(v);
+}
+
+function changeSmooth() {
+  let v = document.getElementById('smooth').value;
+  document.getElementById('smoothVal').textContent = v;
+  if (fft) fft.smooth(v);
+}
+
+function changeSource() {
+  currentSource = document.getElementById('source').value;
+  if (!started) return;
+  if (currentSource === 'mic') {
+    osc.amp(0);
+    mic.start();
+    fft.setInput(mic);
+  } else {
+    mic.stop();
+    osc.amp(parseFloat(document.getElementById('amp').value));
+    fft.setInput(osc);
+  }
+}
+
+function changeCutoff() {
+  let v = document.getElementById('cutoff').value;
+  document.getElementById('cutoffVal').textContent = v;
+    if (filter) {console.log("fresh vaiyo ta");filter.freq(parseFloat(v)); }
+    else {console.log("fresh vayena ta");}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dropwire</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="lobby">
+    <div class="lobby-card">
+      <div class="lobby-brand"> 
+        <span>DropWire</span>
+      </div>
+      <p class="lobby-sub">P2P encrypted file transfer</p>
+      <div class="lobby-input-group">
+        <label>Join or create a room to share files</label>
+        <label for="room-input">Room name</label>
+        <input id="room-input" type="text" placeholder="e.g. secret-room" autofocus>
+      </div>
+      <button class="btn btn-primary" onclick="join()">Join room</button>
+         </div>
+  </div>
+
+  <div id="app" class="hidden">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="room-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>#<span id="room-tag"></span></span>
+        </div>
+      </div>
+      <div class="topbar-center">
+        <div class="conn" id="conn">
+          <span class="dot" id="conn-dot"></span>
+          <span id="conn-label">Idle</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn leave-btn" onclick="leave()">
+          Leave
+        </button>
+      </div>
+    </header>
+
+    <div class="main">
+      <div class="status-bar" id="status">Waiting for peer to join &hellip;</div>
+
+      <label class="dropzone" id="dropzone">
+        <input type="file" id="file-input" hidden>
+        <div class="dz-graphic">
+          <svg class="dz-arrow" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v12m0 0-3-3m3 3 3-3M5 16v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/>
+          </svg>
+        </div>
+        <div class="dz-text">Drop a file here or <span class="dz-link">tap to browse</span></div>
+        <div class="dz-hint">Any file type &middot; streamed in encrypted chunks</div>
+      </label>
+
+      <div id="transfer" class="hidden">
+        <div class="transfer-card">
+          <div class="file-meta" id="file-meta">
+            <div class="file-icon" id="file-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="file-details">
+              <div class="file-name" id="file-name"></div>
+              <div class="file-size" id="file-size"></div>
+            </div>
+          </div>
+          <div class="progress-track">
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+          <div class="progress-stats">
+            <span class="progress-pct" id="progress-pct">0%</span>
+            <span class="progress-speed" id="progress-speed"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="received" class="hidden">
+        <div class="received-card">
+          <div class="preview" id="preview"></div>
+          <div class="file-meta">
+            <div class="file-icon" id="received-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="file-details">
+              <div class="file-name" id="received-name"></div>
+              <div class="file-size" id="received-size"></div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-download" id="download-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download
+          </button>
+          <button class="btn btn-ghost" id="reset-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            Send another
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-wrap"></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
