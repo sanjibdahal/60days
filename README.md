@@ -1,5 +1,4 @@
 # 60 Days of Learning
-
 My learning journal for the [Leapfrog #60DaysOfLearning2026](https://x.com/hashtag/60DaysOfLearning2026) challenge.
 
 ## Progress
@@ -16,6 +15,7 @@ My learning journal for the [Leapfrog #60DaysOfLearning2026](https://x.com/hasht
 | 10 | Web Audio - noise machine (white, pink, brown) with p5.js | [hallah/noises.html](./hallah/noises.html) |
 | 11 | DSP + FFT - real-time spectrum visualizer with p5.js | [hallah/visual_and_filters.html](./hallah/visual_and_filters.html) |
 | 12 | DSP filters + sine waves from scratch in Python | [hallah/fft.py](./hallah/fft.py) |
+| 13 | Built a Theremin with p5.js - mouse controls pitch/volume, trail effects, reverb, live note detection | [hallah/theremin.html](./hallah/theremin.html) |
 
 ## Posts
 Daily updates on X: [@san_jib_dahal](https://x.com/san_jib_dahal) - [#60DaysOfLearning2026](https://x.com/hashtag/60DaysOfLearning2026)

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<body style="margin:0; background:#111; color:#fff; font-family:monospace;">
+
+<div style="padding:10px; display:flex; gap:10px; align-items:center;">
+  <div>
+    <label>Wave: </label>
+    <select id="waveType" onchange="changeWave()">
+      <option value="sine">Sine</option>
+      <option value="sawtooth">Sawtooth</option>
+      <option value="square">Square</option>
+      <option value="triangle">Triangle</option>
+    </select>
+  </div>
+  <div>
+    <label>Reverb: </label>
+    <input type="range" id="reverbAmount" min="0" max="1" step="0.01" value="0.3">
+  </div>
+  <div id="info" style="margin-left:20px;">Click canvas to start</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
+<script>
+let osc, fft, reverb;
+let started = false;
+
+// note names mapped to frequencies
+const NOTES = [
+  { name: 'C2',  freq: 65.41 }, { name: 'D2',  freq: 73.42 },
+  { name: 'E2',  freq: 82.41 }, { name: 'F2',  freq: 87.31 },
+  { name: 'G2',  freq: 98.00 }, { name: 'A2',  freq: 110.0 },
+  { name: 'B2',  freq: 123.5 }, { name: 'C3',  freq: 130.8 },
+  { name: 'D3',  freq: 146.8 }, { name: 'E3',  freq: 164.8 },
+  { name: 'F3',  freq: 174.6 }, { name: 'G3',  freq: 196.0 },
+  { name: 'A3',  freq: 220.0 }, { name: 'B3',  freq: 246.9 },
+  { name: 'C4',  freq: 261.6 }, { name: 'D4',  freq: 293.7 },
+  { name: 'E4',  freq: 329.6 }, { name: 'F4',  freq: 349.2 },
+  { name: 'G4',  freq: 392.0 }, { name: 'A4',  freq: 440.0 },
+  { name: 'B4',  freq: 493.9 }, { name: 'C5',  freq: 523.3 },
+  { name: 'D5',  freq: 587.3 }, { name: 'E5',  freq: 659.3 },
+  { name: 'F5',  freq: 698.5 }, { name: 'G5',  freq: 784.0 },
+  { name: 'A5',  freq: 880.0 }, { name: 'B5',  freq: 987.8 },
+  { name: 'C6',  freq: 1047  }, { name: 'D6',  freq: 1175  },
+  { name: 'E6',  freq: 1319  }, { name: 'F6',  freq: 1397  },
+  { name: 'G6',  freq: 1568  }, { name: 'A6',  freq: 1760  },
+  { name: 'B6',  freq: 1976  }, { name: 'C7',  freq: 2093  },
+];
+
+function closestNote(freq) {
+  return NOTES.reduce((a, b) =>
+    Math.abs(b.freq - freq) < Math.abs(a.freq - freq) ? b : a
+  );
+}
+
+function setup() {
+  let cnv = createCanvas(800, 500);
+  cnv.parent(document.body);
+  colorMode(HSB);
+}
+
+function draw() {
+  // low alpha background = trail effect
+  background(0, 0, 10, 0.15);
+
+  if (!started) {
+    fill(0, 0, 255);
+    textAlign(CENTER, CENTER);
+    textSize(18);
+    text('click to start', width / 2, height / 2);
+    return;
+  }
+
+  let freq = map(mouseX, 0, width, 100, 2000);
+  let amp  = map(mouseY, 0, height, 0.6, 0);
+  let hue  = map(mouseX, 0, width, 180, 360);
+  let note = closestNote(freq);
+
+  osc.freq(freq);
+  osc.amp(amp, 0.05);
+
+  // reverb amount from slider
+  let rv = parseFloat(document.getElementById('reverbAmount').value);
+  reverb.drywet(rv);
+
+  // update info
+  document.getElementById('info').textContent =
+    `Freq: ${freq.toFixed(0)} Hz  |  Note: ${note.name}  |  Amp: ${amp.toFixed(2)}`;
+
+  // glowing trail circle
+  let size = map(amp, 0, 0.6, 10, 80);
+  noStroke();
+  fill(hue, 255, 255, 0.7);
+  circle(mouseX, mouseY, size);
+
+  // softer outer glow
+  fill(hue, 200, 255, 0.2);
+  circle(mouseX, mouseY, size * 2);
+
+  // crosshair
+  stroke(0, 0, 100, 0.4);
+  strokeWeight(1);
+  line(mouseX, 0, mouseX, height * 0.62);
+  line(0, mouseY, width, mouseY);
+
+  // note name at mouse
+  noStroke();
+  fill(hue, 100, 255);
+  textSize(14);
+  textAlign(LEFT);
+  text(note.name, mouseX + 12, mouseY - 10);
+
+  // divider
+  stroke(0, 0, 50);
+  strokeWeight(1);
+  line(0, height * 0.65, width, height * 0.65);
+
+  // FFT spectrum in bottom section
+  let spectrum = fft.analyze();
+  noStroke();
+  for (let i = 0; i < spectrum.length; i++) {
+    let x = map(i, 0, spectrum.length, 0, width);
+    let h = map(spectrum[i], 0, 255, 0, height * 0.32);
+    fill(hue, 200, 255, 0.9);
+    rect(x, height - h, width / spectrum.length, h);
+  }
+
+  // labels
+  noStroke();
+  fill(0, 0, 120);
+  textSize(11);
+  textAlign(LEFT);
+  text('low freq', 10, height - 8);
+  textAlign(RIGHT);
+  text('high freq', width - 10, height - 8);
+  textAlign(LEFT);
+  text('loud', 10, 20);
+  text('silent', 10, height * 0.58);
+}
+
+function mousePressed() {
+  if (!started) {
+    userStartAudio();
+
+    reverb = new p5.Reverb();
+
+    osc = new p5.Oscillator('sine');
+    osc.start();
+    osc.amp(0);
+    osc.disconnect();
+    osc.connect(reverb);
+
+    fft = new p5.FFT(0.8, 512);
+    fft.setInput(reverb);
+
+    started = true;
+  }
+}
+
+function changeWave() {
+  if (osc) osc.setType(document.getElementById('waveType').value);
+}
+</script>
+</body>
+</html>
