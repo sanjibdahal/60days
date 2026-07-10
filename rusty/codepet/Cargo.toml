@@ -1,0 +1,21 @@
+[package]
+name = "codepet"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ratatui    = "0.26"
+crossterm  = "0.27"
+reqwest    = { version = "0.11", features = ["json", "blocking"] }
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono     = { version = "0.4", features = ["serde"] }
+tokio      = { version = "1", features = ["full"] }
+
+[[bin]]
+name = "codepet"
+path = "src/main.rs"
+
+[[bin]]
+name = "codepet-bar"
+path = "src/bar.rs"
