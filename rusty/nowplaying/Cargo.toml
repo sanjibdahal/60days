@@ -1,0 +1,9 @@
+[package]
+name = "nowplaying"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde = { version = "1.0.228", features = ["derive"] }
+tokio = { version = "1.52.3", features = ["full"] }
+zbus = { version = "5.17.0", features = ["tokio"] }
